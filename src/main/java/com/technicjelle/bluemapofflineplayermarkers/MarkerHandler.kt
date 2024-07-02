@@ -7,10 +7,8 @@ import de.bluecolored.bluemap.api.BlueMapWorld
 import de.bluecolored.bluemap.api.markers.MarkerSet
 import de.bluecolored.bluemap.api.markers.POIMarker
 import net.minecraft.core.BlockPos
-import net.minecraft.resources.ResourceLocation
 import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
-import net.minecraft.world.entity.player.Player
 import java.util.*
 import kotlin.math.roundToInt
 
