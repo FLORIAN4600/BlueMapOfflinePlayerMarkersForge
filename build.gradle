@@ -98,6 +98,8 @@ repositories {
     }
 
     maven { url 'https://jitpack.io' }
+
+    maven { url 'https://repo.bluecolored.de/releases' }
 }
 
 dependencies {
@@ -106,7 +108,7 @@ dependencies {
 
     implementation "thedarkcolour:kotlinforforge:$kff_version"
 
-    compileOnly 'com.github.BlueMap-Minecraft:BlueMapAPI:v2.7.0'
+    compileOnly "de.bluecolored.bluemap:BlueMapAPI:${bluemap_api_version}"
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
