@@ -10,7 +10,7 @@ I hope it can help the author to port it to forge, as I've seen it was one of th
 
 ## Will this mod be updated?
 It depends on my needs\
-I actually use to port mods from one version of Minecraft to another or from fabric to forge / from forge to fabric\
+I am actually used to port mods from one version of Minecraft to another or from fabric to forge / from forge to fabric\
 But I only do this to small mods when I need to\
 So this mods might go on without updates or with updates, it will depend on my needs and my schedule\
 But as this mod seems really simple to maintain, I will try my best to keep it updated, at least for 1-2 years\
