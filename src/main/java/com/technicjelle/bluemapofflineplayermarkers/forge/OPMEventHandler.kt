@@ -14,7 +14,6 @@ import net.minecraftforge.event.entity.player.PlayerEvent
 import net.minecraftforge.event.server.ServerStartedEvent
 import net.minecraftforge.eventbus.api.SubscribeEvent
 import net.minecraftforge.fml.common.Mod
-import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent
 
 @Mod.EventBusSubscriber(modid = BlueMapOfflinePlayerMarkers.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = [Dist.DEDICATED_SERVER])
 public class OPMEventHandler {
