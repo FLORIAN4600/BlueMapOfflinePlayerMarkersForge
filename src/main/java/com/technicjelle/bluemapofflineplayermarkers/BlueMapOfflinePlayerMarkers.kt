@@ -5,12 +5,16 @@ import com.technicjelle.bluemapofflineplayermarkers.BlueMapOfflinePlayerMarkers.
 import com.technicjelle.bluemapofflineplayermarkers.forge.OPMEventHandler
 import de.bluecolored.bluemap.api.BlueMapAPI
 import net.minecraft.server.MinecraftServer
-import net.minecraftforge.fml.common.Mod
+import net.neoforged.fml.common.Mod
+import net.neoforged.neoforge.common.NeoForge
+import net.neoforged.neoforge.common.NeoForgeMod
+import net.neoforged.neoforge.internal.versions.neoforge.NeoForgeVersion
+import net.neoforged.neoforgespi.locating.ForgeFeature
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
-import thedarkcolour.kotlinforforge.forge.FORGE_BUS
-import thedarkcolour.kotlinforforge.forge.runForDist
+import thedarkcolour.kotlinforforge.neoforge.forge.FORGE_BUS
+import thedarkcolour.kotlinforforge.neoforge.forge.runForDist
 import java.util.function.Consumer
 
 @Mod(MOD_ID)

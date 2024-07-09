@@ -1,6 +1,4 @@
-# Make sure this is set to "kotlinforforge"
 modLoader="kotlinforforge"
-# Make sure this is set to the appropriate version range
 loaderVersion="${kff_version_range}"
 license="${mod_license}"
 
@@ -8,14 +6,13 @@ license="${mod_license}"
 modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
-# optional
-#credits="The ExampleMod dev team"
+credits='''${credits}'''
 authors="${mod_authors}"
 description='''${mod_description}'''
 [[dependencies.${mod_id}]]
-    modId="forge"
+    modId="neoforge"
     mandatory=true
-    versionRange="${forge_version_range}"
+    versionRange="${neo_version_range}"
     ordering="NONE"
     side="BOTH"
 [[dependencies.${mod_id}]]

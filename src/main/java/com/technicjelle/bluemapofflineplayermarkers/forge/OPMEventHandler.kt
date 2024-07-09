@@ -9,11 +9,11 @@ import com.technicjelle.bluemapofflineplayermarkers.toOfflinePlayer
 import com.technicjelle.bluemapofflineplayermarkers.writePlayerNbt
 import de.bluecolored.bluemap.api.BlueMapAPI
 import net.minecraft.server.level.ServerPlayer
-import net.minecraftforge.api.distmarker.Dist
-import net.minecraftforge.event.entity.player.PlayerEvent
-import net.minecraftforge.event.server.ServerStartedEvent
-import net.minecraftforge.eventbus.api.SubscribeEvent
-import net.minecraftforge.fml.common.Mod
+import net.neoforged.api.distmarker.Dist
+import net.neoforged.bus.api.SubscribeEvent
+import net.neoforged.fml.common.Mod
+import net.neoforged.neoforge.event.entity.player.PlayerEvent
+import net.neoforged.neoforge.event.server.ServerStartedEvent
 
 @Mod.EventBusSubscriber(modid = BlueMapOfflinePlayerMarkers.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = [Dist.DEDICATED_SERVER])
 public class OPMEventHandler {

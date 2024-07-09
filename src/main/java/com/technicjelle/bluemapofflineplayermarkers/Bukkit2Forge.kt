@@ -65,7 +65,7 @@ fun ServerPlayer.writePlayerNbt() {
                 add(DoubleTag.valueOf(position().y))
                 add(DoubleTag.valueOf(position().z))
             })
-            putString("dimension", getLevel().dimension().location().toString())
+            putString("dimension", level().dimension().location().toString())
             putInt("gameMode", gameMode.gameModeForPlayer.id)
         }, File(it, "$stringUUID.dat"))
     }
@@ -96,18 +96,8 @@ fun writeTag(tag: Tag?, dataOutput: DataOutput) {
 @Throws(IOException::class)
 fun readCompressedNbt(stream: InputStream?): CompoundTag {
 
-    debugLogClassStruct(Class.forName("net.minecraft.nbt.NbtAccounter"))
+    return readNbt(DataInputStream(FastBufferedInputStream(GZIPInputStream(stream))), NbtAccounter.unlimitedHeap())
 
-
-    return if(Class.forName("net.minecraft.nbt.NbtAccounter").declaredFields.any { v -> v.name == "f_128917_" }) {
-        readNbt(DataInputStream(FastBufferedInputStream(GZIPInputStream(stream))),
-            Class.forName("net.minecraft.nbt.NbtAccounter").getDeclaredField("f_128917_").get(null) as NbtAccounter? // Forge 46 has a static final to get an unlimited NbtAccounter
-        )
-    }else {
-        readNbt(DataInputStream(FastBufferedInputStream(GZIPInputStream(stream))),
-            Class.forName("net.minecraft.nbt.NbtAccounter").declaredConstructors[0].newInstance(Long.MAX_VALUE, 512) as NbtAccounter? // Forge 49, on the other hand, uses a function. But I decided to use its constructor instead
-        )
-    }
 }
 
 
@@ -125,14 +115,14 @@ fun readNbt(dataInput: DataInput?, nbtAccounter: NbtAccounter?): CompoundTag {
 @Throws(IOException::class)
 private fun readUnnamedTag(dataInput: DataInput, nbtAccounter: NbtAccounter): Any? {
     val b0 = dataInput.readByte()
-    accountBytes(nbtAccounter, 1L) // Forge: Count everything!
+    nbtAccounter.accountBytes(1L)
     return if (b0.toInt() == 0) {
         EndTag.INSTANCE
     } else {
-        nbtAccounter.readUTF(dataInput.readUTF()) //Forge: Count this string.
-        accountBytes(nbtAccounter, 4L) //Forge: 4 extra bytes for the object allocation.
+        nbtAccounter.readUTF(dataInput.readUTF())
+        nbtAccounter.accountBytes(4L)
         try {
-            tryInvokeOrDefault(TagTypes.getType(b0.toInt()), Class.forName("net.minecraft.nbt.Tag"), arrayOf("m_7300_", "load"),  arrayOf(arrayOf(dataInput, 0, nbtAccounter), arrayOf(dataInput, nbtAccounter))) // Forge >= 1.20.2 requires an additional argument, as forge < 1.20.2 does not (+ it is not yet calling load)
+            TagTypes.getType(b0.toInt()).load(dataInput, nbtAccounter)
         } catch (ioexception: IOException) {
             val crashreport = CrashReport.forThrowable(ioexception, "Loading NBT data")
             val crashreportcategory = crashreport.addCategory("NBT Tag")
@@ -142,11 +132,11 @@ private fun readUnnamedTag(dataInput: DataInput, nbtAccounter: NbtAccounter): An
     }
 }
 
-fun accountBytes(nbtAccounter: NbtAccounter, bytes: Long) {
-    tryInvokeOrDefault(nbtAccounter, Void.TYPE, arrayOf("m_6800_", "m_128926_", "m_263468_"), arrayOf(arrayOf(bytes))) // Will try to account for bytes. First = forge 43, second = forge 46, third = forge 49
-}
 
-fun tryInvokeOrDefault(obj: Any, rType: Class<*>, methods: Array<String>, argsList: Array<Array<*>>, local: Boolean = true, forceAccess: Boolean = true): Any? { // Tries its best to call any of the two functions I asked to invoke.
+// Old stuff: might come in handy later
+// Helps me to make a singular modfile for multiple api & minecraft versions
+
+fun tryInvokeOrDefault(obj: Any, rType: Class<*>, methods: Array<String>, argsList: Array<Array<*>>, local: Boolean = true, forceAccess: Boolean = true): Any? { // Tries to call (on runtime) not yet defined (on compile time) functions
 
     for((i, method) in methods.withIndex()) {
 
@@ -160,7 +150,7 @@ fun tryInvokeOrDefault(obj: Any, rType: Class<*>, methods: Array<String>, argsLi
         }.toTypedArray() // filter the class functions to see if any matches what I asked
 
         if(filteredMethods.isNotEmpty()) {
-            printDebugMethod(2, obj, filteredMethods, args)
+            printDebugMethod(i, obj, filteredMethods, args)
             if(forceAccess) filteredMethods[0].isAccessible = true else filteredMethods[0].trySetAccessible() // Try to gently force the function call if asked. If not, brute force its way (probably in a safe manner too)
             return filteredMethods[0].invoke(obj, *args) // call the function on the given object, with the given arguments
         }
@@ -175,7 +165,7 @@ fun tryInvokeOrDefault(obj: Any, rType: Class<*>, methods: Array<String>, argsLi
 
     for((i, method) in methods.withIndex()) {
 
-        sb.append("${method}(${argsList[i].contentToString()})")
+        sb.append("${method}(${(if(i < argsList.size) argsList[i] else argsList[0]).contentToString()})")
 
         if(i < methods.size-1) {
             sb.append(" ; ")
