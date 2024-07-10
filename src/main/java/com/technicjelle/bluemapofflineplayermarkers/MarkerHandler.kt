@@ -83,7 +83,7 @@ class MarkerHandler {
         }
 
         optionalApi.get().maps.forEach { map ->
-            map.markerSets[ConfigManager.read().markerSetName]?.remove(player.uuid.toString())
+            map.markerSets[ConfigManager.read().markerSetName]?.remove(player.stringUUID)
         }
 
         logger.info("Marker for ${player.name.string} removed")
