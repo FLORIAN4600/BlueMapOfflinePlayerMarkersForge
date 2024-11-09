@@ -16,7 +16,7 @@ import java.util.zip.GZIPOutputStream
 
 fun MinecraftServer.getOfflinePlayers(): List<OfflinePlayer> = mutableListOf<OfflinePlayer>().apply {
 
-    val playersOnServer: List<String> = playerList.players.map { it.uuid.toString() }
+    val playersOnServer: List<String> = playerList.players.map { it.stringUUID }
 
     val offlineFiles: List<File> =
         File(getWorldPath(LevelResource.PLAYER_DATA_DIR).toFile(), BlueMapOfflinePlayerMarkers.MOD_ID).listFiles()?.filter {
@@ -65,7 +65,7 @@ fun ServerPlayer.writePlayerNbt() {
                 add(DoubleTag.valueOf(position().y))
                 add(DoubleTag.valueOf(position().z))
             })
-            putString("dimension", level().dimension().location().toString())
+            putString("dimension", level.dimension().location().toString())
             putInt("gameMode", gameMode.gameModeForPlayer.id)
         }, File(it, "$stringUUID.dat"))
     }
@@ -125,14 +125,14 @@ fun readNbt(dataInput: DataInput?, nbtAccounter: NbtAccounter?): CompoundTag {
 @Throws(IOException::class)
 private fun readUnnamedTag(dataInput: DataInput, nbtAccounter: NbtAccounter): Any? {
     val b0 = dataInput.readByte()
-    accountBytes(nbtAccounter, 1L) // Forge: Count everything!
+    accountBytes(nbtAccounter, 1L)
     return if (b0.toInt() == 0) {
         EndTag.INSTANCE
     } else {
-        nbtAccounter.readUTF(dataInput.readUTF()) //Forge: Count this string.
-        accountBytes(nbtAccounter, 4L) //Forge: 4 extra bytes for the object allocation.
+        nbtAccounter.readUTF(dataInput.readUTF())
+        accountBytes(nbtAccounter, 4L)
         try {
-            tryInvokeOrDefault(TagTypes.getType(b0.toInt()), Class.forName("net.minecraft.nbt.Tag"), "m_7300_", arrayOf(dataInput, 0, nbtAccounter), "load", arrayOf(dataInput, nbtAccounter))// Forge 1.20 requires an additional argument, as forge 1.20.1 does not (+ it is not yet calling load)
+            tryInvokeOrDefault(TagTypes.getType(b0.toInt()), Class.forName("net.minecraft.nbt.Tag"), arrayOf("m_7300_", "load"),  arrayOf(arrayOf(dataInput, 0, nbtAccounter), arrayOf(dataInput, nbtAccounter))) // Forge >= 1.20.2 requires an additional argument, as forge < 1.20.2 does not (+ it is not yet calling load)
         } catch (ioexception: IOException) {
             val crashreport = CrashReport.forThrowable(ioexception, "Loading NBT data")
             val crashreportcategory = crashreport.addCategory("NBT Tag")
@@ -143,43 +143,51 @@ private fun readUnnamedTag(dataInput: DataInput, nbtAccounter: NbtAccounter): An
 }
 
 fun accountBytes(nbtAccounter: NbtAccounter, bytes: Long) {
-    tryInvokeOrDefault(nbtAccounter, Void.TYPE, "m_128926_", arrayOf(bytes), "m_263468_", arrayOf(bytes)) // Will try to account for bytes. The first one is the forge 46 func, and the second is the forge 49 func
+    tryInvokeOrDefault(nbtAccounter, Void.TYPE, arrayOf("m_6800_", "m_128926_", "m_263468_"), arrayOf(arrayOf(bytes))) // Will try to account for bytes. First = forge 43, second = forge 46, third = forge 49
 }
 
-fun tryInvokeOrDefault(obj: Any, rType: Class<*>, method: String, args: Array<Any>, defaultMethod: String, defaultArgs: Array<Any>, local: Boolean = true, forceAccess: Boolean = true): Any? { // Tries its best to call any of the two functions I asked to invoke.
+fun tryInvokeOrDefault(obj: Any, rType: Class<*>, methods: Array<String>, argsList: Array<Array<*>>, local: Boolean = true, forceAccess: Boolean = true): Any? { // Tries to call (on runtime) not yet defined (on compile time) functions
 
-    var filteredMethods = if(local) {obj.javaClass.declaredMethods} else {obj.javaClass.methods} // declaredMethods are only the one the actual class has set publicly. While as methods is each and every functions the class has either inherited or declared (public and private)
+    for((i, method) in methods.withIndex()) {
 
-    filteredMethods = filteredMethods.filter { m ->
-        printDebugMethodInfos(m, method, args, rType)
-        m.name == method && m.parameterCount == args.size && (m.returnType.isInstance(rType) || rType.isInstance(m.returnType) || rType == m.returnType || m.returnType.interfaces.contains(rType))
-    }.toTypedArray() // filter the class functions to see if any matches the first one I asked
+        val args: Array<*> = if(i < argsList.size) argsList[i] else argsList[0]
 
-    if(filteredMethods.isNotEmpty()) {
-        printDebugMethod(2, obj, filteredMethods, args)
-        if(forceAccess) filteredMethods[0].isAccessible = true else filteredMethods[0].trySetAccessible() // Try to gently force the function call if asked. If not, brute force its way (probably in a safe manner too)
-        return filteredMethods[0].invoke(obj, *args) // call the function on the given object, with the given arguments
+        var filteredMethods = if(local) {obj.javaClass.declaredMethods} else {obj.javaClass.methods} // declaredMethods are only the one the actual class has set publicly. While as methods is each and every functions the class has either inherited or declared (public and private)
+
+        filteredMethods = filteredMethods.filter { m ->
+            printDebugMethodInfos(m, method, args, rType)
+            m.name == method && m.parameterCount == args.size && (m.returnType.isInstance(rType) || rType.isInstance(m.returnType) || rType == m.returnType || m.returnType.interfaces.contains(rType))
+        }.toTypedArray() // filter the class functions to see if any matches what I asked
+
+        if(filteredMethods.isNotEmpty()) {
+            printDebugMethod(i, obj, filteredMethods, args)
+            if(forceAccess) filteredMethods[0].isAccessible = true else filteredMethods[0].trySetAccessible() // Try to gently force the function call if asked. If not, brute force its way (probably in a safe manner too)
+            return filteredMethods[0].invoke(obj, *args) // call the function on the given object, with the given arguments
+        }
+
+        BlueMapOfflinePlayerMarkers.logDebug("Method ${i}: no match")
+
     }
 
-    BlueMapOfflinePlayerMarkers.logDebug("Method 1: no match")
+    val sb: StringBuilder = StringBuilder()
 
-    filteredMethods = if(local) {obj.javaClass.declaredMethods} else {obj.javaClass.methods}
+    sb.append("Methods not found: {")
 
-    filteredMethods = filteredMethods.filter { m ->
-        printDebugMethodInfos(m, defaultMethod, defaultArgs, rType)
-        m.name == defaultMethod && m.parameterCount == defaultArgs.size && (m.returnType.isInstance(rType) || rType.isInstance(m.returnType) || rType == m.returnType || m.returnType.interfaces.contains(rType))
-    }.toTypedArray() // filter the class functions to see if any matches the second one I asked
+    for((i, method) in methods.withIndex()) {
 
-    if(filteredMethods.isNotEmpty()){ // same as the first one, but with the second function name and arguments
-        printDebugMethod(1, obj, filteredMethods, defaultArgs)
-        if(forceAccess) filteredMethods[0].isAccessible = true else filteredMethods[0].trySetAccessible()
-        return filteredMethods[0].invoke(obj, *defaultArgs)
+        sb.append("${method}(${(if(i < argsList.size) argsList[i] else argsList[0]).contentToString()})")
+
+        if(i < methods.size-1) {
+            sb.append(" ; ")
+        }
+
     }
 
-    BlueMapOfflinePlayerMarkers.logDebug("Method 2: no match")
+    sb.append("}")
+
 
     BlueMapOfflinePlayerMarkers.logError("Could not invoke required functions on object: "+obj.javaClass.name)
-    throw NoSuchMethodException("Methods not found: {${method}(${args.contentToString()}) ; ${defaultMethod}(${defaultArgs.contentToString()})}")
+    throw NoSuchMethodException(sb.toString())
 }
 
 

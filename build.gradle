@@ -8,7 +8,7 @@ plugins {
     id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.22'
 }
 
-version = "$mod_version-$minecraft_version"
+version = mod_version
 group = mod_group_id
 
 base {
@@ -97,9 +97,9 @@ repositories {
         content { includeGroup "thedarkcolour" }
     }
 
-    maven { url 'https://jitpack.io' }
+    maven { url 'https://jitpack.io' } // use for BMApi [DEPRECATED]
 
-    maven { url 'https://repo.bluecolored.de/releases' }
+    // maven { url 'https://repo.bluecolored.de/releases' } // use for BMApi > 2.7.0 only
 }
 
 dependencies {
@@ -108,7 +108,9 @@ dependencies {
 
     implementation "thedarkcolour:kotlinforforge:$kff_version"
 
-    compileOnly "de.bluecolored.bluemap:BlueMapAPI:${bluemap_api_version}"
+    compileOnly "com.github.BlueMap-Minecraft:BlueMapAPI:v${bluemap_api_version}" // use for BMApi [DEPRECATED]
+
+    // compileOnly "de.bluecolored.bluemap:BlueMapAPI:${bluemap_api_version}" // use for BMApi > 2.7.0 only
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
@@ -121,7 +123,7 @@ def replaceProperties = [
         forge_version: forge_version, forge_version_range: forge_version_range,
         kff_version_range: kff_version_range, bluemap_version_range: bluemap_version_range,
         mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-        mod_authors: mod_authors, mod_description: mod_description
+        mod_authors: mod_authors, mod_description: mod_description, credits: credits
 ]
 processResources {
     inputs.properties replaceProperties
