@@ -4,6 +4,7 @@ import com.technicjelle.BMUtils
 import com.technicjelle.bluemapofflineplayermarkers.BlueMapOfflinePlayerMarkers.MOD_ID
 import com.technicjelle.bluemapofflineplayermarkers.forge.OPMEventHandler
 import de.bluecolored.bluemap.api.BlueMapAPI
+import fr.florian4600.compatutils.CompatibilityUtilities
 import net.minecraft.server.MinecraftServer
 import net.minecraftforge.fml.common.Mod
 import org.apache.logging.log4j.Level
@@ -17,9 +18,10 @@ import java.util.function.Consumer
 object BlueMapOfflinePlayerMarkers {
 
     const val MOD_ID = "bluemapofflineplayermarkers"
-    const val IS_DEBUG = false // Should not be set to true on release build. If it is "true" on GitHub, please do tell me in Issues
 
     val logger: Logger = LogManager.getLogger(MOD_ID)
+
+    val compatUtils: CompatibilityUtilities = CompatibilityUtilities(BlueMapOfflinePlayerMarkers.logger)
 
     public val markerHandler = MarkerHandler()
 
@@ -42,10 +44,6 @@ object BlueMapOfflinePlayerMarkers {
 
     public fun logError(message: Any) {
         logger.log(Level.ERROR, message.toString())
-    }
-
-    public fun logDebug(message: Any) {
-        if(IS_DEBUG) logger.log(Level.DEBUG, message.toString())
     }
 
     public fun getOnEnableListener(server: MinecraftServer) = Consumer<BlueMapAPI> { api ->

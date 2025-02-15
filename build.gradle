@@ -1,11 +1,13 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id 'idea'
     id 'maven-publish'
-    id 'net.minecraftforge.gradle' version '[6.0.16,6.2)'
+    id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
     // Adds the Kotlin Gradle plugin
-    id 'org.jetbrains.kotlin.jvm' version '1.8.22'
+    id 'org.jetbrains.kotlin.jvm' version '2.0.0'
     // OPTIONAL Kotlin Serialization plugin
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.22'
+    id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.0'
 }
 
 version = mod_version
@@ -15,10 +17,16 @@ base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+compileKotlin.compilerOptions.jvmTarget = JvmTarget.JVM_21
 
 println("Java: ${System.getProperty('java.version')}, JVM: ${System.getProperty('java.vm.version')} (${System.getProperty('java.vendor')}), Arch: ${System.getProperty('os.arch')}")
+
 minecraft {
+
+    reobf = false
+    copyIdeResources = true
+
     // Change to your preferred mappings
     mappings channel: mapping_channel, version: mapping_version
     // Add your AccessTransformer
@@ -97,9 +105,9 @@ repositories {
         content { includeGroup "thedarkcolour" }
     }
 
-    maven { url 'https://jitpack.io' } // use for BMApi [DEPRECATED]
+    // maven { url 'https://jitpack.io' } // use for BMApi [DEPRECATED]
 
-    // maven { url 'https://repo.bluecolored.de/releases' } // use for BMApi > 2.7.0 only
+    maven { url 'https://repo.bluecolored.de/releases' } // use for BMApi > 2.7.0
 }
 
 dependencies {
@@ -108,9 +116,15 @@ dependencies {
 
     implementation "thedarkcolour:kotlinforforge:$kff_version"
 
-    compileOnly "com.github.BlueMap-Minecraft:BlueMapAPI:v${bluemap_api_version}" // use for BMApi [DEPRECATED]
+    // compileOnly "com.github.BlueMap-Minecraft:BlueMapAPI:v${bluemap_api_version}" // use for BMApi [DEPRECATED]
 
-    // compileOnly "de.bluecolored.bluemap:BlueMapAPI:${bluemap_api_version}" // use for BMApi > 2.7.0 only
+    // compileOnly "de.bluecolored.bluemap:BlueMapAPI:${bluemap_api_version}" // use for BMApi ]2.7.0, 2.7.2] only
+
+    compileOnly "de.bluecolored:bluemap-api:${bluemap_api_version}" // use for BMApi >= 2.7.3
+
+    // Forge fix for 1.21.0
+    implementation('net.sf.jopt-simple:jopt-simple:5.0.4') { version { strictly '5.0.4' } }
+
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
@@ -134,10 +148,6 @@ processResources {
     }
 }
 
-compileKotlin {
-    kotlinOptions.jvmTarget = "17"
-}
-
 jar {
     manifest {
         attributes([
@@ -156,8 +166,6 @@ tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
 
-// The below is only required if using 'maven-publish' and you want to publish to maven or use JitPack
-jar.finalizedBy('reobfJar')
 publishing {
     publications {
         mavenJava(MavenPublication) {
@@ -168,5 +176,12 @@ publishing {
         maven {
             url "file://${project.projectDir}/mcmodsrepo"
         }
+    }
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
     }
 }

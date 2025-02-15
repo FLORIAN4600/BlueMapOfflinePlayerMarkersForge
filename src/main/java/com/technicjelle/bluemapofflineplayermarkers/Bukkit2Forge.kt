@@ -7,9 +7,7 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.FastBufferedInputStream
 import net.minecraft.world.level.storage.LevelResource
-import org.apache.logging.log4j.Level
 import java.io.*
-import java.lang.reflect.Method
 import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
@@ -65,7 +63,7 @@ fun ServerPlayer.writePlayerNbt() {
                 add(DoubleTag.valueOf(position().y))
                 add(DoubleTag.valueOf(position().z))
             })
-            putString("dimension", level.dimension().location().toString())
+            putString("dimension", level().dimension().location().toString())
             putInt("gameMode", gameMode.gameModeForPlayer.id)
         }, File(it, "$stringUUID.dat"))
     }
@@ -96,18 +94,16 @@ fun writeTag(tag: Tag?, dataOutput: DataOutput) {
 @Throws(IOException::class)
 fun readCompressedNbt(stream: InputStream?): CompoundTag {
 
-    debugLogClassStruct(Class.forName("net.minecraft.nbt.NbtAccounter"))
-
-
-    return if(Class.forName("net.minecraft.nbt.NbtAccounter").declaredFields.any { v -> v.name == "f_128917_" }) {
-        readNbt(DataInputStream(FastBufferedInputStream(GZIPInputStream(stream))),
-            Class.forName("net.minecraft.nbt.NbtAccounter").getDeclaredField("f_128917_").get(null) as NbtAccounter? // Forge 46 has a static final to get an unlimited NbtAccounter
+    try {
+        return readNbt(DataInputStream(FastBufferedInputStream(GZIPInputStream(stream))),
+            NbtAccounter.unlimitedHeap()
+            // Class.forName("net.minecraft.nbt.NbtAccounter").declaredConstructors[0].newInstance(Long.MAX_VALUE, 512) as NbtAccounter? // Unlimited heap, assures that even if they remove the function I might be able to still use it (Forge 49+)
         )
-    }else {
-        readNbt(DataInputStream(FastBufferedInputStream(GZIPInputStream(stream))),
-            Class.forName("net.minecraft.nbt.NbtAccounter").declaredConstructors[0].newInstance(Long.MAX_VALUE, 512) as NbtAccounter? // Forge 49, on the other hand, uses a function. But I decided to use its constructor instead
-        )
+    }catch(exception: IOException) {
+        // BlueMapOfflinePlayerMarkers.compatUtils.debugLogClassStruct(Class.forName("net.minecraft.nbt.NbtAccounter"))
+        throw exception
     }
+
 }
 
 
@@ -129,10 +125,11 @@ private fun readUnnamedTag(dataInput: DataInput, nbtAccounter: NbtAccounter): An
     return if (b0.toInt() == 0) {
         EndTag.INSTANCE
     } else {
-        nbtAccounter.readUTF(dataInput.readUTF())
+        readUTF(nbtAccounter, dataInput.readUTF())
         accountBytes(nbtAccounter, 4L)
         try {
-            tryInvokeOrDefault(TagTypes.getType(b0.toInt()), Class.forName("net.minecraft.nbt.Tag"), arrayOf("m_7300_", "load"),  arrayOf(arrayOf(dataInput, 0, nbtAccounter), arrayOf(dataInput, nbtAccounter))) // Forge >= 1.20.2 requires an additional argument, as forge < 1.20.2 does not (+ it is not yet calling load)
+            TagTypes.getType(b0.toInt()).load(dataInput, nbtAccounter)
+            //BlueMapOfflinePlayerMarkers.compatUtils.tryInvokeOrDefault(TagTypes.getType(b0.toInt()), Class.forName("net.minecraft.nbt.Tag"), arrayOf("load", "m_7300_"),  arrayOf(arrayOf(dataInput, nbtAccounter))) // First: Forge 50+, Second: Forge 50+ (just in case, should not work)
         } catch (ioexception: IOException) {
             val crashreport = CrashReport.forThrowable(ioexception, "Loading NBT data")
             val crashreportcategory = crashreport.addCategory("NBT Tag")
@@ -142,109 +139,31 @@ private fun readUnnamedTag(dataInput: DataInput, nbtAccounter: NbtAccounter): An
     }
 }
 
+fun readUTF(nbtAccounter: NbtAccounter, data: String?): String? {
+    accountBytes(nbtAccounter, 16L)
+    if (data == null) {
+        return data
+    } else {
+        val len = data.length
+        var utflen = 0
+
+        for (i in 0 until len) {
+            val c = data[i].code
+            if (c in 1..127) {
+                ++utflen
+            } else if (c > 2047) {
+                utflen += 3
+            } else {
+                utflen += 2
+            }
+        }
+
+        accountBytes(nbtAccounter, (8 * utflen).toLong())
+        return data
+    }
+}
+
 fun accountBytes(nbtAccounter: NbtAccounter, bytes: Long) {
-    tryInvokeOrDefault(nbtAccounter, Void.TYPE, arrayOf("m_6800_", "m_128926_", "m_263468_"), arrayOf(arrayOf(bytes))) // Will try to account for bytes. First = forge 43, second = forge 46, third = forge 49
-}
-
-fun tryInvokeOrDefault(obj: Any, rType: Class<*>, methods: Array<String>, argsList: Array<Array<*>>, local: Boolean = true, forceAccess: Boolean = true): Any? { // Tries to call (on runtime) not yet defined (on compile time) functions
-
-    for((i, method) in methods.withIndex()) {
-
-        val args: Array<*> = if(i < argsList.size) argsList[i] else argsList[0]
-
-        var filteredMethods = if(local) {obj.javaClass.declaredMethods} else {obj.javaClass.methods} // declaredMethods are only the one the actual class has set publicly. While as methods is each and every functions the class has either inherited or declared (public and private)
-
-        filteredMethods = filteredMethods.filter { m ->
-            printDebugMethodInfos(m, method, args, rType)
-            m.name == method && m.parameterCount == args.size && (m.returnType.isInstance(rType) || rType.isInstance(m.returnType) || rType == m.returnType || m.returnType.interfaces.contains(rType))
-        }.toTypedArray() // filter the class functions to see if any matches what I asked
-
-        if(filteredMethods.isNotEmpty()) {
-            printDebugMethod(i, obj, filteredMethods, args)
-            if(forceAccess) filteredMethods[0].isAccessible = true else filteredMethods[0].trySetAccessible() // Try to gently force the function call if asked. If not, brute force its way (probably in a safe manner too)
-            return filteredMethods[0].invoke(obj, *args) // call the function on the given object, with the given arguments
-        }
-
-        BlueMapOfflinePlayerMarkers.logDebug("Method ${i}: no match")
-
-    }
-
-    val sb: StringBuilder = StringBuilder()
-
-    sb.append("Methods not found: {")
-
-    for((i, method) in methods.withIndex()) {
-
-        sb.append("${method}(${(if(i < argsList.size) argsList[i] else argsList[0]).contentToString()})")
-
-        if(i < methods.size-1) {
-            sb.append(" ; ")
-        }
-
-    }
-
-    sb.append("}")
-
-
-    BlueMapOfflinePlayerMarkers.logError("Could not invoke required functions on object: "+obj.javaClass.name)
-    throw NoSuchMethodException(sb.toString())
-}
-
-
-// Debug functions to easily spot the right functions to use & fix the different mismatch errors
-
-fun printDebugMethodInfos(m: Method, methodName: String, args: Array<*>, returnType: Class<*>) {
-
-    if(!BlueMapOfflinePlayerMarkers.IS_DEBUG) return
-
-    BlueMapOfflinePlayerMarkers.logger.log(Level.ERROR, "${m.name}   ${m.parameterCount}   ${m.returnType}   ${m.parameters.contentToString()}")
-    BlueMapOfflinePlayerMarkers.logger.log(Level.WARN, "$methodName   ${args.size}   $returnType")
-    BlueMapOfflinePlayerMarkers.logger.log(Level.WARN, "${m.name == methodName}   ${m.parameterCount == args.size}   (${m.returnType.isInstance(returnType)} || ${returnType.isInstance(m.returnType)} || ${returnType == m.returnType} || ${m.returnType.interfaces.contains(returnType)})")
-}
-
-fun printDebugMethod(methodIndex: Int, obj: Any, filteredMethods: Array<Method>, args: Array<*>) {
-
-    if(!BlueMapOfflinePlayerMarkers.IS_DEBUG) return
-
-    BlueMapOfflinePlayerMarkers.logInfo("Method $methodIndex chosen")
-    BlueMapOfflinePlayerMarkers.logInfo("${filteredMethods[0].name}   ${filteredMethods[0].parameterCount}   ${filteredMethods[0].returnType}")
-    BlueMapOfflinePlayerMarkers.logError("${filteredMethods[0]}   ${filteredMethods.contentToString()}   ${obj.javaClass.name}   $obj   ${args.contentToString()}")
-
-}
-
-fun debugLogClassStruct(obj: Class<*>) {
-
-    BlueMapOfflinePlayerMarkers.logDebug("Constructors")
-
-    for(c in obj.constructors) {
-
-        val sb = StringBuilder()
-
-        sb.append(c.name)
-        sb.append("   ")
-
-        for((i, p) in c.parameters.withIndex()) {
-
-            sb.append("[${i}] ")
-            sb.append(p.name)
-            sb.append(";")
-            sb.append(p.type)
-            sb.append(";")
-            sb.append(p.javaClass)
-            sb.append(";")
-            sb.append(p.declaringExecutable)
-            sb.append(";")
-            sb.append(p.annotatedType)
-
-        }
-
-        BlueMapOfflinePlayerMarkers.logDebug(sb.toString())
-    }
-
-    BlueMapOfflinePlayerMarkers.logDebug("Static Variables")
-
-    for(p in obj.declaredFields) {
-        BlueMapOfflinePlayerMarkers.logDebug(p.name+"   "+p.declaringClass+"   "+p.javaClass+"   "+p.type+"   "+p.annotatedType)
-    }
-
+    nbtAccounter.accountBytes(bytes)
+    //BlueMapOfflinePlayerMarkers.compatUtils.tryInvokeOrDefault(nbtAccounter, Void.TYPE, arrayOf("accountBytes", "m_301853_", "m_263468_"), arrayOf(arrayOf(bytes))) // Will try to account for bytes. First: Forge 50+, Second/Third: Forge 50+ (should not work but are here just in case)
 }
