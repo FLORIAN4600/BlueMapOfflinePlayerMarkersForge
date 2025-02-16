@@ -7,16 +7,14 @@ import net.minecraft.server.MinecraftServer
 import net.minecraft.server.level.ServerPlayer
 import net.minecraft.util.FastBufferedInputStream
 import net.minecraft.world.level.storage.LevelResource
-import org.apache.logging.log4j.Level
 import java.io.*
-import java.lang.reflect.Method
 import java.util.*
 import java.util.zip.GZIPInputStream
 import java.util.zip.GZIPOutputStream
 
 fun MinecraftServer.getOfflinePlayers(): List<OfflinePlayer> = mutableListOf<OfflinePlayer>().apply {
 
-    val playersOnServer: List<String> = playerList.players.map { it.uuid.toString() }
+    val playersOnServer: List<String> = playerList.players.map { it.stringUUID }
 
     val offlineFiles: List<File> =
         File(getWorldPath(LevelResource.PLAYER_DATA_DIR).toFile(), BlueMapOfflinePlayerMarkers.MOD_ID).listFiles()?.filter {
@@ -96,7 +94,13 @@ fun writeTag(tag: Tag?, dataOutput: DataOutput) {
 @Throws(IOException::class)
 fun readCompressedNbt(stream: InputStream?): CompoundTag {
 
-    return readNbt(DataInputStream(FastBufferedInputStream(GZIPInputStream(stream))), NbtAccounter.unlimitedHeap())
+    try {
+        return readNbt(DataInputStream(FastBufferedInputStream(GZIPInputStream(stream))),
+            NbtAccounter.unlimitedHeap()
+        )
+    }catch(exception: IOException) {
+        throw exception
+    }
 
 }
 
@@ -119,7 +123,7 @@ private fun readUnnamedTag(dataInput: DataInput, nbtAccounter: NbtAccounter): An
     return if (b0.toInt() == 0) {
         EndTag.INSTANCE
     } else {
-        nbtAccounter.readUTF(dataInput.readUTF())
+        readUTF(nbtAccounter, dataInput.readUTF())
         nbtAccounter.accountBytes(4L)
         try {
             TagTypes.getType(b0.toInt()).load(dataInput, nbtAccounter)
@@ -132,109 +136,26 @@ private fun readUnnamedTag(dataInput: DataInput, nbtAccounter: NbtAccounter): An
     }
 }
 
+fun readUTF(nbtAccounter: NbtAccounter, data: String?): String? {
+    nbtAccounter.accountBytes(16L)
+    if (data == null) {
+        return data
+    } else {
+        val len = data.length
+        var utflen = 0
 
-// Old stuff: might come in handy later
-// Helps me to make a singular modfile for multiple api & minecraft versions
-
-fun tryInvokeOrDefault(obj: Any, rType: Class<*>, methods: Array<String>, argsList: Array<Array<*>>, local: Boolean = true, forceAccess: Boolean = true): Any? { // Tries to call (on runtime) not yet defined (on compile time) functions
-
-    for((i, method) in methods.withIndex()) {
-
-        val args: Array<*> = if(i < argsList.size) argsList[i] else argsList[0]
-
-        var filteredMethods = if(local) {obj.javaClass.declaredMethods} else {obj.javaClass.methods} // declaredMethods are only the one the actual class has set publicly. While as methods is each and every functions the class has either inherited or declared (public and private)
-
-        filteredMethods = filteredMethods.filter { m ->
-            printDebugMethodInfos(m, method, args, rType)
-            m.name == method && m.parameterCount == args.size && (m.returnType.isInstance(rType) || rType.isInstance(m.returnType) || rType == m.returnType || m.returnType.interfaces.contains(rType))
-        }.toTypedArray() // filter the class functions to see if any matches what I asked
-
-        if(filteredMethods.isNotEmpty()) {
-            printDebugMethod(i, obj, filteredMethods, args)
-            if(forceAccess) filteredMethods[0].isAccessible = true else filteredMethods[0].trySetAccessible() // Try to gently force the function call if asked. If not, brute force its way (probably in a safe manner too)
-            return filteredMethods[0].invoke(obj, *args) // call the function on the given object, with the given arguments
+        for (i in 0 until len) {
+            val c = data[i].code
+            if (c in 1..127) {
+                ++utflen
+            } else if (c > 2047) {
+                utflen += 3
+            } else {
+                utflen += 2
+            }
         }
 
-        BlueMapOfflinePlayerMarkers.logDebug("Method ${i}: no match")
-
+        nbtAccounter.accountBytes((8 * utflen).toLong())
+        return data
     }
-
-    val sb: StringBuilder = StringBuilder()
-
-    sb.append("Methods not found: {")
-
-    for((i, method) in methods.withIndex()) {
-
-        sb.append("${method}(${(if(i < argsList.size) argsList[i] else argsList[0]).contentToString()})")
-
-        if(i < methods.size-1) {
-            sb.append(" ; ")
-        }
-
-    }
-
-    sb.append("}")
-
-
-    BlueMapOfflinePlayerMarkers.logError("Could not invoke required functions on object: "+obj.javaClass.name)
-    throw NoSuchMethodException(sb.toString())
-}
-
-
-// Debug functions to easily spot the right functions to use & fix the different mismatch errors
-
-fun printDebugMethodInfos(m: Method, methodName: String, args: Array<*>, returnType: Class<*>) {
-
-    if(!BlueMapOfflinePlayerMarkers.IS_DEBUG) return
-
-    BlueMapOfflinePlayerMarkers.logger.log(Level.ERROR, "${m.name}   ${m.parameterCount}   ${m.returnType}   ${m.parameters.contentToString()}")
-    BlueMapOfflinePlayerMarkers.logger.log(Level.WARN, "$methodName   ${args.size}   $returnType")
-    BlueMapOfflinePlayerMarkers.logger.log(Level.WARN, "${m.name == methodName}   ${m.parameterCount == args.size}   (${m.returnType.isInstance(returnType)} || ${returnType.isInstance(m.returnType)} || ${returnType == m.returnType} || ${m.returnType.interfaces.contains(returnType)})")
-}
-
-fun printDebugMethod(methodIndex: Int, obj: Any, filteredMethods: Array<Method>, args: Array<*>) {
-
-    if(!BlueMapOfflinePlayerMarkers.IS_DEBUG) return
-
-    BlueMapOfflinePlayerMarkers.logInfo("Method $methodIndex chosen")
-    BlueMapOfflinePlayerMarkers.logInfo("${filteredMethods[0].name}   ${filteredMethods[0].parameterCount}   ${filteredMethods[0].returnType}")
-    BlueMapOfflinePlayerMarkers.logError("${filteredMethods[0]}   ${filteredMethods.contentToString()}   ${obj.javaClass.name}   $obj   ${args.contentToString()}")
-
-}
-
-fun debugLogClassStruct(obj: Class<*>) {
-
-    BlueMapOfflinePlayerMarkers.logDebug("Constructors")
-
-    for(c in obj.constructors) {
-
-        val sb = StringBuilder()
-
-        sb.append(c.name)
-        sb.append("   ")
-
-        for((i, p) in c.parameters.withIndex()) {
-
-            sb.append("[${i}] ")
-            sb.append(p.name)
-            sb.append(";")
-            sb.append(p.type)
-            sb.append(";")
-            sb.append(p.javaClass)
-            sb.append(";")
-            sb.append(p.declaringExecutable)
-            sb.append(";")
-            sb.append(p.annotatedType)
-
-        }
-
-        BlueMapOfflinePlayerMarkers.logDebug(sb.toString())
-    }
-
-    BlueMapOfflinePlayerMarkers.logDebug("Static Variables")
-
-    for(p in obj.declaredFields) {
-        BlueMapOfflinePlayerMarkers.logDebug(p.name+"   "+p.declaringClass+"   "+p.javaClass+"   "+p.type+"   "+p.annotatedType)
-    }
-
 }

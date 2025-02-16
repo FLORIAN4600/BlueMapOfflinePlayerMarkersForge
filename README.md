@@ -16,9 +16,6 @@ If it has not been updated for over a month, and that you are interested in eith
 Do feel free to update or fork or modify it to your needs (be aware that the [**license**](https://github.com/FLORIAN4600/BlueMapOfflinePlayerMarkersForge/blob/main/LICENSE) requires you to do things like: credit the publishers of the source code (TechnicJell, syorito-hatsuki and FLORIAN4600), put a link to their original code, and copy the license as it was provided by the first repo).
 
 ## Current support
-#### This mod has been ported to:
-- Forge 1.18.2 to 1.20.4 (v1.3.0)
-- NeoForge 1.20.2 to 1.20.4
-#### It is actually in developement for:
-- Forge 1.20.6 to 1.21 (and up)
-- NeoForge 1.20.5 to 1.21.4 (and up)
+### Porting is completed:
+- Forge 1.18.2 to 1.21.4 (v1.3.1 and v1.4.0)
+- NeoForge 1.20.2 to 1.21.4 (v1.3.0 and v1.4.0)

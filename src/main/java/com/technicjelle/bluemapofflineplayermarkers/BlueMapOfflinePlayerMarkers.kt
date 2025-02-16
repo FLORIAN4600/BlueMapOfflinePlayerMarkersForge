@@ -4,12 +4,9 @@ import com.technicjelle.BMUtils
 import com.technicjelle.bluemapofflineplayermarkers.BlueMapOfflinePlayerMarkers.MOD_ID
 import com.technicjelle.bluemapofflineplayermarkers.forge.OPMEventHandler
 import de.bluecolored.bluemap.api.BlueMapAPI
+import fr.florian4600.compatutils.CompatibilityUtilities
 import net.minecraft.server.MinecraftServer
 import net.neoforged.fml.common.Mod
-import net.neoforged.neoforge.common.NeoForge
-import net.neoforged.neoforge.common.NeoForgeMod
-import net.neoforged.neoforge.internal.versions.neoforge.NeoForgeVersion
-import net.neoforged.neoforgespi.locating.ForgeFeature
 import org.apache.logging.log4j.Level
 import org.apache.logging.log4j.LogManager
 import org.apache.logging.log4j.Logger
@@ -21,9 +18,11 @@ import java.util.function.Consumer
 object BlueMapOfflinePlayerMarkers {
 
     const val MOD_ID = "bluemapofflineplayermarkers"
-    const val IS_DEBUG = false // Should not be set to true on release build. If it is "true" on GitHub, please do tell me in Issues
 
     val logger: Logger = LogManager.getLogger(MOD_ID)
+
+    // Both booleans should be false in release state, please do tell me if I forgot to switch them back in any release source code
+    val compatUtils: CompatibilityUtilities = CompatibilityUtilities(logger, false, false)
 
     public val markerHandler = MarkerHandler()
 
@@ -46,10 +45,6 @@ object BlueMapOfflinePlayerMarkers {
 
     public fun logError(message: Any) {
         logger.log(Level.ERROR, message.toString())
-    }
-
-    public fun logDebug(message: Any) {
-        if(IS_DEBUG) logger.log(Level.DEBUG, message.toString())
     }
 
     public fun getOnEnableListener(server: MinecraftServer) = Consumer<BlueMapAPI> { api ->

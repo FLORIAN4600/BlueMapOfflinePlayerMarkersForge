@@ -1,12 +1,14 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id 'java-library'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.gradle.userdev' version '7.0.116'
+    id 'net.neoforged.gradle.userdev' version '7.0.173'
     // Adds the Kotlin Gradle plugin
-    id 'org.jetbrains.kotlin.jvm' version '1.8.22'
-    // OPTIONAL Kotlin Serialization plugin
-    id 'org.jetbrains.kotlin.plugin.serialization' version '1.8.22'
+    id 'org.jetbrains.kotlin.jvm' version "${kotlin_jvm_version}"
+    // Kotlin Serialization plugin
+    id 'org.jetbrains.kotlin.plugin.serialization' version "${kotlin_jvm_version}"
 }
 
 version = "neoforge-$mod_version"
@@ -16,7 +18,8 @@ base {
     archivesName = mod_id
 }
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
+compileKotlin.compilerOptions.jvmTarget = JvmTarget.JVM_21
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 
 runs {
@@ -25,7 +28,7 @@ runs {
 
         systemProperty 'forge.logging.console.level', 'debug'
 
-        modSource project.sourceSets.main
+        modSources project.sourceSets.main
     }
 
     client {
@@ -41,10 +44,12 @@ runs {
         systemProperty 'forge.enabledGameTestNamespaces', project.mod_id
     }
 
-    data {
-        programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
+    clientData {
+        arguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
     }
+
 }
+
 
 // Include assets and data from data generators
 sourceSets.main.resources { srcDirs 'src/generated/resources/' }
@@ -53,33 +58,42 @@ repositories {
 
     mavenLocal()
 
+    // maven for kotlin serialization
+    maven {url = "https://kotlin.bintray.com/kotlinx"}
+
     maven {
         name = 'Kotlin for Forge'
         url = 'https://thedarkcolour.github.io/KotlinForForge/'
         content { includeGroup "thedarkcolour" }
     }
 
-    maven { url 'https://jitpack.io' } // use for BMApi [DEPRECATED]
+    // maven { url 'https://jitpack.io' } // use for BMApi [DEPRECATED]
 
-    // maven { url 'https://repo.bluecolored.de/releases' } // use for BMApi > 2.7.0 only
+    maven { url 'https://repo.bluecolored.de/releases' } // use for BMApi > 2.7.0
 }
 
 dependencies {
+
+    // Kotlin Serialization JSON, because apparently the serialization plugin does not implement its dependency anymore
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlin_json_version}"
+
     // Use the latest version of Minecraft Forge
     implementation "net.neoforged:neoforge:${neo_version}"
 
     implementation "thedarkcolour:kotlinforforge-neoforge:$kff_version"
 
-    compileOnly "com.github.BlueMap-Minecraft:BlueMapAPI:v${bluemap_api_version}" // use for BMApi [DEPRECATED]
+    // compileOnly "com.github.BlueMap-Minecraft:BlueMapAPI:v${bluemap_api_version}" // use for BMApi [DEPRECATED]
 
-    // compileOnly "de.bluecolored.bluemap:BlueMapAPI:${bluemap_api_version}" // use for BMApi > 2.7.0 only
+    // compileOnly "de.bluecolored.bluemap:BlueMapAPI:${bluemap_api_version}" // use for BMApi ]2.7.0, 2.7.2] only
+
+    compileOnly "de.bluecolored:bluemap-api:${bluemap_api_version}" // use for BMApi >= 2.7.3
 }
 
 // This block of code expands all declared replace properties in the specified resource targets.
 // A missing property will result in an error. Properties are expanded using ${} Groovy notation.
 // When "copyIdeResources" is enabled, this will also run before the game launches in IDE environments.
 // See https://docs.gradle.org/current/dsl/org.gradle.language.jvm.tasks.ProcessResources.html
-def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta']
+def resourceTargets = ['META-INF/neoforge.mods.toml', 'pack.mcmeta']
 def replaceProperties = [
         minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
         neo_version: neo_version, neo_version_range: neo_version_range,
@@ -87,6 +101,7 @@ def replaceProperties = [
         mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
         mod_authors: mod_authors, mod_description: mod_description, credits: credits
 ]
+
 processResources {
     inputs.properties replaceProperties
     replaceProperties.put 'project', project
@@ -94,10 +109,6 @@ processResources {
     filesMatching(resourceTargets) {
         expand replaceProperties
     }
-}
-
-compileKotlin {
-    kotlinOptions.jvmTarget = "17"
 }
 
 tasks.withType(JavaCompile).configureEach {
@@ -114,5 +125,12 @@ publishing {
         maven {
             url "file://${project.projectDir}/mcmodsrepo"
         }
+    }
+}
+
+idea {
+    module {
+        downloadSources = true
+        downloadJavadoc = true
     }
 }
