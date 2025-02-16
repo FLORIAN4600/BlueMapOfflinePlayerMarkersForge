@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+@SuppressWarnings("unused")
 public class BMUtils {
     static final String FALLBACK_ICON = "assets/steve.png";
 

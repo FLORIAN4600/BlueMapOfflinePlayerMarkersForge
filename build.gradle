@@ -5,9 +5,9 @@ plugins {
     id 'maven-publish'
     id 'net.minecraftforge.gradle' version '[6.0.24,6.2)'
     // Adds the Kotlin Gradle plugin
-    id 'org.jetbrains.kotlin.jvm' version '2.0.0'
+    id 'org.jetbrains.kotlin.jvm' version "${kotlin_jvm_version}"
     // OPTIONAL Kotlin Serialization plugin
-    id 'org.jetbrains.kotlin.plugin.serialization' version '2.0.0'
+    id 'org.jetbrains.kotlin.plugin.serialization' version "${kotlin_jvm_version}"
 }
 
 version = mod_version
@@ -99,6 +99,10 @@ minecraft {
 sourceSets.main.resources { srcDirs 'src/generated/resources/' }
 
 repositories {
+
+    // maven for kotlin serialization
+    maven {url = "https://kotlin.bintray.com/kotlinx"}
+
     maven {
         name = 'Kotlin for Forge'
         url = 'https://thedarkcolour.github.io/KotlinForForge/'
@@ -111,6 +115,10 @@ repositories {
 }
 
 dependencies {
+
+    // Kotlin Serialization JSON, because apparently the serialization plugin does not implement its dependency anymore
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlin_json_version}"
+
     // Use the latest version of Minecraft Forge
     minecraft "net.minecraftforge:forge:$minecraft_version-$forge_version"
 
