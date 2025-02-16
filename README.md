@@ -18,5 +18,6 @@ Do feel free to update or fork or modify it to your needs (be aware that the [**
 ## Current support
 #### This mod has been ported to:
 - Forge 1.18.2 to 1.21.4 (v1.3.1 and v1.4.0)
+- NeoForge 1.20.2 to 1.20.4 (v1.3.0)
 #### Still working on porting it to:
-- NeoForge 1.20.2 to 1.21 (and up)
+- NeoForge 1.20.5 to 1.21.4 (and up)
