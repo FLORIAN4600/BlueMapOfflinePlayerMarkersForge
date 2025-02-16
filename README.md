@@ -9,7 +9,7 @@ And my thankings again to TechnicJelle, as my mod contains part of BMUtils code
 - See https://github.com/TechnicJelle/BMUtils/tree/main for the BMUtils source code
 
 ## Will this mod be updated?
-**I will try to keep it updated. Maybe for a year or two.**\
+**I will try to keep it updated. Maybe for a year or two (or more).**\
 <br>
 If it has not been updated for over a month, and that you are interested in either me porting the mod, or you taking the lead on ports, feel free to leave an [Issue](https://github.com/FLORIAN4600/BlueMapOfflinePlayerMarkersForge/issues) or a [Pull Request](https://github.com/FLORIAN4600/BlueMapOfflinePlayerMarkersForge/pulls).\
 <br>
