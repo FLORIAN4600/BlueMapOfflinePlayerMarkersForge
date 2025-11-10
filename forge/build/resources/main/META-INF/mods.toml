@@ -1,0 +1,35 @@
+modLoader="kotlinforforge"
+loaderVersion="[5.3.0,)"
+license="Mozilla Public License Version 2.0"
+
+[[mods]]
+modId="bluemapofflineplayermarkers"
+version="1.4.1"
+displayName="BlueMapOfflinePlayerMarkers"
+credits='''Thanks to Syorito Hatsuki and TechnicJelle for enabling this port to be done. Thanks to all the other people in the mod author list, as they've participated in the fabric port which this mod is based on.'''
+authors="[TechnicJelle, Mark-255, Blue, Seercat3160, Syorito Hatsuki, FLORIAN4600]"
+description='''Adds markers where players have logged off to BlueMap'''
+[[dependencies.bluemapofflineplayermarkers]]
+    modId="forge"
+    mandatory=true
+    versionRange="[50,)"
+    ordering="NONE"
+    side="SERVER"
+[[dependencies.bluemapofflineplayermarkers]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.5,)"
+    ordering="NONE"
+    side="SERVER"
+[[dependencies.bluemapofflineplayermarkers]]
+    modId="kotlinforforge"
+    mandatory=true
+    versionRange="[5.3.0,)"
+    ordering="NONE"
+    side="SERVER"
+[[dependencies.bluemapofflineplayermarkers]]
+    modId="bluemap"
+    mandatory=true
+    versionRange="[3.21,)"
+    ordering="NONE"
+    side="SERVER"
