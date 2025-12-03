@@ -7,19 +7,13 @@ plugins {
     id 'architectury-plugin' version '3.4-SNAPSHOT'
     // Shadow, needed to tie all configs together
     id 'com.github.johnrengelman.shadow' version '8.1.1' apply false
-
-    // Adds the Kotlin Gradle plugin
-    id 'org.jetbrains.kotlin.jvm' version "${kotlin_jvm_version}"
-    // Kotlin Serialization plugin
-    id 'org.jetbrains.kotlin.plugin.serialization' version "${kotlin_jvm_version}"
 }
 
 allprojects {
 
-    version = rootProject.mod_version
+    version = "${rootProject.mod_version}-"+"${rootProject.environment}".toLowerCase()
     group = rootProject.mod_group_id
 
-    compileKotlin.compilerOptions.jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
     java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 }
@@ -55,18 +49,13 @@ subprojects {
 
     repositories {
 
-        // maven for kotlin serialization
-        maven {url = "https://kotlin.bintray.com/kotlinx"}
+        int bmVersion = Integer.valueOf(String.valueOf("${rootProject.bluemap_api_version}").replace(".", ""))
 
-        maven {
-            name = 'Kotlin for Forge'
-            url = 'https://thedarkcolour.github.io/KotlinForForge/'
-            content { includeGroup "thedarkcolour" }
+        if (bmVersion < 270) {
+            maven { url 'https://jitpack.io' } // use for BMApi [DEPRECATED]
+        } else {
+            maven { url 'https://repo.bluecolored.de/releases' } // use for BMApi > 2.7.0
         }
-
-        // maven { url 'https://jitpack.io' } // use for BMApi [DEPRECATED]
-
-        maven { url 'https://repo.bluecolored.de/releases' } // use for BMApi > 2.7.0
     }
 
     dependencies {
@@ -80,15 +69,15 @@ subprojects {
             it.mappings("dev.architectury:yarn-mappings-patch-neoforge:$rootProject.yarn_mappings_patch_neoforge_version")
         }*/
 
-        // Kotlin Serialization JSON, because apparently the serialization plugin does not implement its dependency anymore
-        implementation "org.jetbrains.kotlinx:kotlinx-serialization-core:${kotlin_json_version}"
-        implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:${kotlin_json_version}"
+        int bmVersion = Integer.valueOf(String.valueOf("${rootProject.bluemap_api_version}").replace(".", ""))
 
-        // compileOnly "com.github.BlueMap-Minecraft:BlueMapAPI:v${rootProject.bluemap_api_version}" // use for BMApi [DEPRECATED]
-
-        // compileOnly "de.bluecolored.bluemap:BlueMapAPI:${rootProject.bluemap_api_version}" // use for BMApi ]2.7.0, 2.7.2] only
-
-        compileOnly "de.bluecolored:bluemap-api:${rootProject.bluemap_api_version}" // use for BMApi >= 2.7.3
+        if (bmVersion < 270) {
+            compileOnly "com.github.BlueMap-Minecraft:BlueMapAPI:v${rootProject.bluemap_api_version}" // use for BMApi [DEPRECATED]
+        } else if(bmVersion < 273) {
+            compileOnly "de.bluecolored.bluemap:BlueMapAPI:${rootProject.bluemap_api_version}" // use for BMApi ]2.7.0, 2.7.2] only
+        } else {
+            compileOnly "de.bluecolored:bluemap-api:${rootProject.bluemap_api_version}" // use for BMApi >= 2.7.3
+        }
     }
 
     java {
@@ -100,11 +89,11 @@ subprojects {
 
     }
 
-    def resourceTargets = ['META-INF/neoforge.mods.toml', 'META-INF/mods.toml', 'pack.mcmeta']
+    def resourceTargets = ['META-INF/neoforge.mods.toml', 'META-INF/mods.toml', 'META-INF/ENVIRONMENT', 'pack.mcmeta']
     def replaceProperties = [
+            environment: rootProject.environment,
             minecraft_version: rootProject.minecraft_version, minecraft_version_range: rootProject.minecraft_version_range,
-            neo_version_range: rootProject.neo_version_range, forge_version_range: rootProject.forge_version_range,
-            kff_version_range: rootProject.kff_version_range, bluemap_version_range: rootProject.bluemap_version_range,
+            neo_version_range: rootProject.neo_version_range, forge_version_range: rootProject.forge_version_range, bluemap_version_range: rootProject.bluemap_version_range,
             mod_id: rootProject.mod_id, mod_name: rootProject.mod_name, mod_license: rootProject.mod_license, mod_version: rootProject.mod_version,
             mod_authors: rootProject.mod_authors, mod_description: rootProject.mod_description, credits: rootProject.credits
     ]
@@ -118,7 +107,6 @@ subprojects {
         }
     }
 
-    compileKotlin.compilerOptions.jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
     java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
     tasks.withType(JavaCompile).configureEach {

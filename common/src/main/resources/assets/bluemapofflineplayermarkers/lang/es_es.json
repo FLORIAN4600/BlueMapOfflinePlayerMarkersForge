@@ -1,0 +1,23 @@
+{
+  "bluemapofflineplayermarkers.debug.langtest": "es_es Translator test: %s %s, %s",
+  "bluemapofflineplayermarkers.debug.hidden.ban": "El marcador de %s estaba occulto, el jugador estaba en la lista negra",
+  "bluemapofflineplayermarkers.debug.hidden.gamemode": "El marcador de %s estaba occulto, su modo de juego era %s",
+  "bluemapofflineplayermarkers.debug.hidden.bluemap": "El marcador de %s estaba oculto. BlueMap lo ha marcado como oculto. Si se trata de un error, establece hideHiddenPlayers en false en la configuración del Mod.",
+  "bluemapofflineplayermarkers.info.language.changed.success": "Éxito en el cambio de lengua a %s",
+  "bluemapofflineplayermarkers.info.language.changed.error": "Error al cargar el idioma \"%s\", volver al idioma \"%s\"",
+  "bluemapofflineplayermarkers.info.enabled": "API Cargada! BlueMap Offline Player Markers está activado!",
+  "bluemapofflineplayermarkers.info.disabled": "Desactivación de BlueMap Offline Player Markers!",
+  "bluemapofflineplayermarkers.info.shuttingdown": "API Desactivado! Extinción de BlueMap Offline Player Markers...",
+  "bluemapofflineplayermarkers.info.added.success": "Adición de un marcador para %s",
+  "bluemapofflineplayermarkers.info.added.fail.bluemap": "Adición de un marcador imposible, BlueMap todavía no está cargado!",
+  "bluemapofflineplayermarkers.info.added.fail.dimension": "Adición de un marcador imposible, la dimension \"%s\" del jugador \"%s\" no se ha encontrado en BlueMap!",
+  "bluemapofflineplayermarkers.info.removed.success": "El marcador de \"%s\" se ha ocultado",
+  "bluemapofflineplayermarkers.info.removed.fail.bluemap": "Revocación de un marcador imposible, BlueMap todavía no está cargado!",
+  "bluemapofflineplayermarkers.info.removed.ban": "Se a revocado el marcador de \"%s\": El jugador es en la lista negra",
+  "bluemapofflineplayermarkers.info.removed.expire": "Se a revocado el marcador de \"%s\": El jugador no se ha conectado desde hace mucho tiempo",
+  "bluemapofflineplayermarkers.info.removed.filefail": "El marcardor de %s ( %s ) no pudo ser eliminado: No se pudo eliminar el archivo...",
+  "bluemapofflineplayermarkers.info.lastseen": "\"%s\" se conectó por última vez hace %sms",
+  "bluemapofflineplayermarkers.command.delete.succeeded": "El marcador offline para \"%s\" ha sido cancelado",
+  "bluemapofflineplayermarkers.command.delete.failed.error": "No se han encontrado marcador offline para %s",
+  "bluemapofflineplayermarkers.command.fake.succeeded": "Se ha creado un marcador offline llamado \"%s\", para la dimensión %s y la posición %s"
+}

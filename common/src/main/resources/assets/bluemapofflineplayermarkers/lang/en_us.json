@@ -1,5 +1,23 @@
 {
-  "bluemapofflineplayermarkers.delete.succeeded": "Deleted Offline Marker of %s",
-  "bluemapofflineplayermarkers.delete.failed.error": "No Offline Player Marker found for %s",
-  "bluemapofflineplayermarkers.fake.succeeded": "Created a fake Offline Marker of name %s, dimension %s and location %s"
+  "bluemapofflineplayermarkers.debug.langtest": "en_us Translator test: %s %s, %s",
+  "bluemapofflineplayermarkers.debug.hidden.ban": "Hidden Player %s, Player has been Banned",
+  "bluemapofflineplayermarkers.debug.hidden.gamemode": "Hidden Player %s, His Game Mode was %s",
+  "bluemapofflineplayermarkers.debug.hidden.bluemap": "Hidden Player %s because he was set invisible by BlueMap, if this is an error, please disable hideHiddenPlayerMarkers in config",
+  "bluemapofflineplayermarkers.info.language.changed.success": "App language successfully changed to: %s",
+  "bluemapofflineplayermarkers.info.language.changed.error": "Error whilst changing language to \"%s\", rolling back to \"%s\"",
+  "bluemapofflineplayermarkers.info.enabled": "API Ready! BlueMap Offline Player Markers plugin enabled!",
+  "bluemapofflineplayermarkers.info.disabled": "BlueMap Offline Player Markers plugin disabled!",
+  "bluemapofflineplayermarkers.info.shuttingdown": "API disabled! BlueMap Offline Player Markers is shutting down...",
+  "bluemapofflineplayermarkers.info.added.success": "Marker for \"%s\" added",
+  "bluemapofflineplayermarkers.info.added.fail.bluemap": "Tried to add a marker, but BlueMap wasn't loaded!",
+  "bluemapofflineplayermarkers.info.added.fail.dimension": "Tried to add a marker, but the dimension \"%s\" of player \"%s\" was not found in BlueMap!",
+  "bluemapofflineplayermarkers.info.removed.success": "Marker for \"%s\" hidden",
+  "bluemapofflineplayermarkers.info.removed.fail.bluemap": "Tried to hide a marker, but BlueMap wasn't loaded!",
+  "bluemapofflineplayermarkers.info.removed.ban": "%s's Offline Marker has been removed, cause: Player has been Banned",
+  "bluemapofflineplayermarkers.info.removed.expire": "%s's Offline Marker has been removed, cause: Player last seen too long ago",
+  "bluemapofflineplayermarkers.info.removed.filefail": "%s ( %s )'s Offline Marker could not be removed, cause: File cannot be deleted",
+  "bluemapofflineplayermarkers.info.lastseen": "Player %s was last seen %sms ago",
+  "bluemapofflineplayermarkers.command.delete.succeeded": "Deleted Offline Marker of %s",
+  "bluemapofflineplayermarkers.command.delete.failed.error": "No Offline Player Marker found for %s",
+  "bluemapofflineplayermarkers.command.fake.succeeded": "Created a fake Offline Marker of name \"%s\", dimension %s and location %s"
 }

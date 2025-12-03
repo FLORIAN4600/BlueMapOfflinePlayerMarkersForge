@@ -1,6 +1,4 @@
 plugins {
-    id 'org.jetbrains.kotlin.jvm'
-    id 'org.jetbrains.kotlin.plugin.serialization' apply true
 }
 architectury {
     common rootProject.enabled_platforms.split(',')
@@ -14,7 +12,4 @@ dependencies {
 }
 repositories {
     mavenCentral()
-}
-kotlin {
-    jvmToolchain(21)
 }

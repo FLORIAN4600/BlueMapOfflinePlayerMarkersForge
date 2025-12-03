@@ -1,0 +1,23 @@
+{
+  "bluemapofflineplayermarkers.debug.langtest": "fr_fr Translator test: %s %s, %s",
+  "bluemapofflineplayermarkers.debug.hidden.ban": "Le marqueur de \"%s\" a été caché, Le joueur a été banni",
+  "bluemapofflineplayermarkers.debug.hidden.gamemode": "Le marqueur de \"%s\" a été caché, Le mode de jeu du joueur étais: %s",
+  "bluemapofflineplayermarkers.debug.hidden.bluemap": "Le marqueur de \"%s\" a été caché, BlueMap l'a signalé comme invisible. Si ceci est une erreurs essayez de désactiver hideHiddenPlayerMarkers dans la configuration du mod",
+  "bluemapofflineplayermarkers.info.language.changed.success": "Changement de langue réussi, nouvelle langue: %s",
+  "bluemapofflineplayermarkers.info.language.changed.error": "Erreur lors du chargement de la langue \"%s\", retour en la langue \"%s\"",
+  "bluemapofflineplayermarkers.info.enabled": "API Chargée! BlueMap Offline Player Markers est activé!",
+  "bluemapofflineplayermarkers.info.disabled": "Désactivation de BlueMap Offline Player Markers!",
+  "bluemapofflineplayermarkers.info.shuttingdown": "API Désactivée! Extinction de BlueMap Offline Player Markers...",
+  "bluemapofflineplayermarkers.info.added.success": "Ajout d'un marqueur pour %s",
+  "bluemapofflineplayermarkers.info.added.fail.bluemap": "Ajout d'un marqueur impossible, BlueMap n'est pas encore chargé!",
+  "bluemapofflineplayermarkers.info.added.fail.dimension": "Ajout d'un marqueur impossible, la dimension \"%s\" du joueur \"%s\" n'a pas pu être récupérée dans BlueMap!",
+  "bluemapofflineplayermarkers.info.removed.success": "Le marqueur de \"%s\" a été caché",
+  "bluemapofflineplayermarkers.info.removed.fail.bluemap": "Retrait d'un marqueur impossible, BlueMap n'est pas encore chargé!",
+  "bluemapofflineplayermarkers.info.removed.ban": "Le marqueur de \"%s\" a été supprimé: Le joueur a été banni",
+  "bluemapofflineplayermarkers.info.removed.expire": "Le marqueur de \"%s\" a été supprimé: Le joueur ne s'est pas connecté depuis trop longtemps",
+  "bluemapofflineplayermarkers.info.removed.filefail": "Le marqueur de %s ( %s ) n'a pas pu être supprimé: Son fichier n'a pu être détruit...",
+  "bluemapofflineplayermarkers.info.lastseen": "La dernière connexion de \"%s\" était il y a %sms",
+  "bluemapofflineplayermarkers.command.delete.succeeded": "Le marqueur (hors ligne) de \"%s\" a été supprimé",
+  "bluemapofflineplayermarkers.command.delete.failed.error": "Aucun marqueur (hors ligne) du nom de \"%s\" n'a été trouvé",
+  "bluemapofflineplayermarkers.command.fake.succeeded": "Un marqueur (hors ligne) du nom de \"%s\", pour la dimension %s et position %s a été créé"
+}
