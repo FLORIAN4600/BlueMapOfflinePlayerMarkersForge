@@ -1,5 +1,0 @@
-{
-  "bluemapofflineplayermarkers.delete.succeeded": "Deleted Offline Marker of %s",
-  "bluemapofflineplayermarkers.delete.failed.error": "No Offline Player Marker found for %s",
-  "bluemapofflineplayermarkers.fake.succeeded": "Created a fake Offline Marker of name %s, dimension %s and location %s"
-}
