@@ -72,7 +72,7 @@ public class FakeMarkerCommand {
                     () -> MarkerHandler.add(stack.getServer(), Bukkit2Forge.toOfflinePlayer(fake))
             ).start();
 
-            stack.sendSuccess(translator.translateToColoredComponent("bluemapofflineplayermarkers.command.fake.succeeded", ChatFormatting.GOLD, target, stack.getLevel().dimension().location(), position), true);
+            stack.sendSuccess(() -> translator.translateToColoredComponent("bluemapofflineplayermarkers.command.fake.succeeded", ChatFormatting.GOLD, target, stack.getLevel().dimension().location(), position), true);
 
         }catch (Exception e) {
             Thrower.appendError(e);

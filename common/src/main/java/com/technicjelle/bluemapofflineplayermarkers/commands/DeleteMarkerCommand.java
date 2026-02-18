@@ -53,7 +53,7 @@ public class DeleteMarkerCommand {
 
             MarkerHandler.remove(uuid.get(), target);
 
-            stack.sendSuccess(translator.translateToColoredComponent("bluemapofflineplayermarkers.command.delete.succeeded", ChatFormatting.BLUE, target), true);
+            stack.sendSuccess(() -> translator.translateToColoredComponent("bluemapofflineplayermarkers.command.delete.succeeded", ChatFormatting.BLUE, target), true);
 
         } catch (Exception ignored) {
             throw ERROR.create(target);

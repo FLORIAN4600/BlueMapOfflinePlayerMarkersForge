@@ -9,21 +9,13 @@ import de.bluecolored.bluemap.api.markers.MarkerSet;
 import de.bluecolored.bluemap.api.markers.POIMarker;
 import net.minecraft.client.telemetry.TelemetryProperty;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.protocol.status.ServerStatus;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.LevelResource;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -36,7 +28,7 @@ public class MarkerHandler {
                 server,
                 player.uuid,
                 player.name,
-                new BlockPos(player.position.getFirst().intValue(), player.position.getFirst().intValue(), player.position.getFirst().intValue()),
+                new BlockPos(player.position.get(0).intValue(), player.position.get(1).intValue(), player.position.get(2).intValue()),
                 player.dimension,
                 player.gameMode,
                 System.currentTimeMillis()
