@@ -1,4 +1,4 @@
-## See [Modrinth](https://modrinth.com/mod/bluemap-offline-player-markers-forge/versions) or [Releases](https://github.com/FLORIAN4600/BlueMapOfflinePlayerMarkersForge/releases) for downloadable versions of the mod
+## See [Modrinth](https://modrinth.com/mod/bluemap-offline-player-markers-forge/versions) or [Releases](https://github.com/FLORIAN4600/BlueMapOfflinePlayerMarkersForge/releases) for downloadable versions of the mod and up to date docs/readme
 
 # BlueMap Offline Players Marker for forge and neoforge
 Thanks to TechnicJell for publishing the source code of the mod on GitHub, which allowed me to port it to forge for my own server\
@@ -15,15 +15,19 @@ And my thankings again to TechnicJelle, as my mod contains part of BMUtils code
 - Ability to select if banned player markers are hidden, destroyed or kept
 - Ability to fake offline player markers via ``/fakeOfflineMaker <name> [<pos>] [<uuid>]``
 - Ability to delete offline player markers via ``/deleteOfflineMarker <name>``
+- See modrinth for a more extensive list
 
 ## Will this mod be updated?
 **I will try to keep it updated. Maybe for a year or two.**\
-<br>
-If it has not been updated for over a month, and that you are interested in either me porting the mod, or you taking the lead on ports, feel free to leave an [Issue](https://github.com/FLORIAN4600/BlueMapOfflinePlayerMarkersForge/issues) or a [Pull Request](https://github.com/FLORIAN4600/BlueMapOfflinePlayerMarkersForge/pulls).\
-<br>
+<br/>
+If it has not been updated for some months, and that you are interested in either me porting the mod, or you taking the lead on ports, feel free to leave an [Issue](https://github.com/FLORIAN4600/BlueMapOfflinePlayerMarkersForge/issues) or a [Pull Request](https://github.com/FLORIAN4600/BlueMapOfflinePlayerMarkersForge/pulls).\
+<br/>
 Do feel free to update or fork or modify it to your needs (be aware that the [**license**](https://github.com/FLORIAN4600/BlueMapOfflinePlayerMarkersForge/blob/main/LICENSE) requires you to do things like: credit the publishers of the source code (TechnicJell, syorito-hatsuki and FLORIAN4600), put a link to their original code, and copy the license as it was provided by the first repo).
+<br/>
+#### Because of my actual studies and work, I am unable to work on this mod (at the exception of some hours every 1/2 months), please take over this code base if you want an update. If you want to take over the Jave17 code, open an issue and I'll gladly post it AS-IS on the java17 branch (it actually only needs the right obfuscated method names to be put for each minecraft versions (if you do not mind the API spaghetti code))
+
 
 ## Current support
 ### Porting is completed:
-- Forge 1.18.2 to 1.21.4 (v1.3.1 and v1.4.0)
-- NeoForge 1.20.2 to 1.21.4 (v1.3.0 and v1.4.0)
+- Forge 1.18.2 to 1.21.4 (v1.3.1 and v1.4.2)
+- NeoForge 1.20.2 to 1.21.4 (v1.3.0 and v1.4.2)
